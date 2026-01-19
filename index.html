@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Room Monitor</title>
+    <style>
+        body { font-family: 'Arial', sans-serif; text-align: center; background-color: #f0f2f5; padding: 20px; }
+        .card { background: white; border-radius: 15px; padding: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 400px; margin: auto; }
+        h1 { color: #333; }
+        .status { font-size: 24px; margin: 20px 0; font-weight: bold; }
+        .count { font-size: 48px; color: #007bff; }
+        .light-on { color: #ffc107; }
+        .light-off { color: #6c757d; }
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Smart Room Status</h1>
+        <div class="status">จำนวนคนในห้อง:</div>
+        <div id="people-count" class="count">0</div>
+        
+        <div class="status">สถานะไฟ:</div>
+        <div id="light-status" class="light-off">ตรวจสอบข้อมูล...</div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // คัดลอกค่าจาก Firebase Console > Project Settings
+        const firebaseConfig = {
+            apiKey: "AIzaSyAY7dNXGLfeirlYUR_clmcM0NSUFJibvGM",
+            authDomain: "led01-fed0f.firebaseapp.com",
+            databaseURL: "https://led01-fed0f-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "led01-fed0f",
+            storageBucket: "led01-fed0f.firebasestorage.app",
+            messagingSenderId: "460239570853",
+            appId: "1:460239570853:web:12d58e09fed3a457a84a4c",
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // ดึงข้อมูลจาก Path "room/people"
+        const peopleRef = ref(db, 'room/people');
+        onValue(peopleRef, (snapshot) => {
+            const data = snapshot.val();
+            document.getElementById('people-count').innerText = data;
+        });
+
+        // ดึงข้อมูลจาก Path "room/light"
+        const lightRef = ref(db, 'room/light');
+        onValue(lightRef, (snapshot) => {
+            const isLightOn = snapshot.val();
+            const lightElem = document.getElementById('light-status');
+            if (isLightOn) {
+                lightElem.innerText = "💡 เปิดอยู่";
+                lightElem.className = "light-on";
+            } else {
+                lightElem.innerText = "🌑 ปิดอยู่";
+                lightElem.className = "light-off";
+            }
+        });
+    </script>
+</body>
+</html>
